@@ -1,6 +1,6 @@
 # Walnut App Template
 
-This uses a simple app template from[Walnut](https://github.com/TheCherno/Walnut) - unlike the example within the Walnut repository, this keeps Walnut as an external submodule and is much more sensible for actually building applications. See the [Walnut](https://github.com/TheCherno/Walnut) repository for more details.
+This uses a simple app template [Walnut](https://github.com/TheCherno/Walnut) - See the [Walnut](https://github.com/TheCherno/Walnut) repository for more details.
 
 ## Building and running
 Officially supports Windows 10/11 and Visual Studio 2022, with more platforms coming soon. You'll need to have the [Vulkan SDK](https://vulkan.lunarg.com/) installed.
