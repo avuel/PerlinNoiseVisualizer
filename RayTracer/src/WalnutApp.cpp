@@ -9,6 +9,7 @@
 #include "Camera.hpp"
 
 #include <memory>
+#include <charconv>
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace Walnut;
@@ -20,22 +21,26 @@ public:
 		: m_Camera(45.0f, 0.1f, 100.0f) 
 	{
 		Material &ambientSky = m_Scene.Materials.emplace_back();
+		m_Scene.ObjectNames.push_back("Sky");
 		ambientSky.Albedo = { 0.6f, 0.7f, 0.9f };
 
 		Material &graySphere = m_Scene.Materials.emplace_back();
+		m_Scene.ObjectNames.push_back("Gray Sphere");
 		graySphere.Albedo = { 0.125f, 0.125f, 0.125f };
 		graySphere.Reflectiveness = 0.4;
-		graySphere.Shinyness = 16;
+		graySphere.Shinyness = 32;
 
-		Material &blueSphere = m_Scene.Materials.emplace_back();
-		blueSphere.Albedo = { 0.1f, 0.1f, 0.1f };
-		blueSphere.Reflectiveness = 0.2f;
-		blueSphere.Shinyness = 32;
+		Material &ground = m_Scene.Materials.emplace_back();
+		m_Scene.ObjectNames.push_back("Ground (large sphere)");
+		ground.Albedo = { 0.1f, 0.1f, 0.1f };
+		ground.Reflectiveness = 0.2f;
+		ground.Shinyness = 512;
 
 		Material &redCube = m_Scene.Materials.emplace_back();
+		m_Scene.ObjectNames.push_back("Red AABB");
 		redCube.Albedo = { 1.0f, 0.0f, 0.0f };
 		redCube.Reflectiveness = 0.0f;
-		redCube.Shinyness = 32;
+		redCube.Shinyness = 8;
 
 		{
 			Sphere sphere;
@@ -57,6 +62,7 @@ public:
 			Cube cube;
 			float size = 0.5f; // Half the side length
 			glm::vec3 origin = { -2.0f, 0.0f, 2.0f };
+			cube.Origin = origin;
 
 			// Back Face
 			Triangle triangle0;
@@ -163,23 +169,15 @@ public:
 		}
 		
 		{
-			glm::vec3 lightDirection = glm::normalize(glm::vec3(-1.0f, -1.0f, 0.0f));
+			glm::vec3 lightDirection = glm::vec3(-1.0f, -1.0f, 0.0f);
 			glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 			m_Scene.Lights.emplace_back(new DirectionalLight(lightDirection, lightColor));
-			//light.Direction = glm::normalize(glm::vec3(-1.0f, -1.0f, 0.0f));
-			//light.Color = glm::vec3(1.0f, 1.0f, 1.0f);
-			//m_Scene.DirectionalLights.push_back(light);
 		}
 
 		{
-			//sphere.Origin = 0.0f, 0.2f, 0.0f };
-			//sphere.Radius = 1.0f;
 			glm::vec3 lightOrigin = { 1.0f, 1.1f, 0.4f };
 			glm::vec3 lightColor = { 1.0f, 1.0f, 0.0f };
 			m_Scene.Lights.emplace_back(new PointLight(lightOrigin, lightColor));
-			//PointLight light;
-			//light.Origin.y = 2.0f;
-			//m_Scene.PointLights.push_back(light);
 		}
 	}
 
@@ -199,26 +197,21 @@ public:
 		ImGui::End();
 
 		ImGui::Begin("Scene");
+
+		ImGui::Text("Sky");
+		ImGui::ColorEdit3("Albedo", glm::value_ptr(m_Scene.Materials[0].Albedo), 0.1f);
+		ImGui::Separator();
+
 		for (size_t i = 0; i < m_Scene.Spheres.size(); i++)
 		{
 			ImGui::PushID(i);
 
 			Sphere &sphere = m_Scene.Spheres[i];
+			ImGui::Text(m_Scene.ObjectNames[sphere.MaterialIndex]);
 			ImGui::DragFloat3("Position", glm::value_ptr(sphere.Origin), 0.1f);
 			ImGui::DragFloat("Radius", &sphere.Radius, 0.01f, 0.0f);
-			ImGui::DragInt("Material", &sphere.MaterialIndex, 1.0f, 1, (int)m_Scene.Materials.size() - 1);
 
-			ImGui::Separator();
-
-			ImGui::PopID();
-		}
-
-		for (size_t i = 0; i < m_Scene.Materials.size(); i++)
-		{
-			ImGui::PushID(i);
-
-			Material &material = m_Scene.Materials[i];
-
+			Material &material = m_Scene.Materials[sphere.MaterialIndex];
 			ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo), 0.1f);
 			ImGui::DragFloat("Reflective", &material.Reflectiveness, 0.0f, 0.0f, 1.0f);
 			const int oldshinyness = material.Shinyness;
@@ -229,8 +222,56 @@ public:
 				else
 					material.Shinyness = oldshinyness * 2;
 
-				material.Shinyness = std::clamp(material.Shinyness, 1, 64);
+				material.Shinyness = std::clamp(material.Shinyness, 1, 4096);
 			}
+
+			ImGui::Separator();
+
+			ImGui::PopID();
+		}
+
+		for (size_t i = 0; i < m_Scene.Cubes.size(); i++)
+		{
+			ImGui::PushID(i + m_Scene.Spheres.size());
+
+			Cube &cube = m_Scene.Cubes[i];
+			glm::vec3 oldOrigin = cube.Origin;
+			ImGui::Text(m_Scene.ObjectNames[cube.MaterialIndex]);
+			if (ImGui::DragFloat3("Position", glm::value_ptr(cube.Origin), 0.1f))
+			{
+				cube.Translate(cube.Origin - oldOrigin);
+			}
+
+			Material &material = m_Scene.Materials[cube.MaterialIndex];
+			ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo), 0.1f);
+			ImGui::DragFloat("Reflective", &material.Reflectiveness, 0.0f, 0.0f, 1.0f);
+			const int oldshinyness = material.Shinyness;
+			if (ImGui::InputInt("Shinyness", &material.Shinyness))
+			{
+				if (material.Shinyness < oldshinyness)
+					material.Shinyness = oldshinyness / 2;
+				else
+					material.Shinyness = oldshinyness * 2;
+
+				material.Shinyness = std::clamp(material.Shinyness, 1, 4096);
+			}
+
+			ImGui::Separator();
+
+			ImGui::PopID();
+		}
+
+		// Interactive Modifiers for Scene lights
+		int lightcount = 0;
+		for (auto &light : m_Scene.Lights)
+		{
+			ImGui::PushID(lightcount);
+
+			
+			ImGui::Text("Light");
+			ImGui::SameLine();
+			ImGui::Text(std::to_string(++lightcount).c_str());
+			ImGui::DragFloat3(light->GetType(), glm::value_ptr(*light->GetData()), 0.1f);
 
 			ImGui::Separator();
 

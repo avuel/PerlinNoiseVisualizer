@@ -62,6 +62,9 @@ namespace Utils {
 		return (gamma((ambient + diffuse + specular) / (1.0f + luminance(ambient + diffuse + specular))));
 	}
 	
+
+	// Code adapted from Dr T.J's CPU Ray Tracing Example Observable Notebook
+	// https://observablehq.com/@cse4413msstate/lets-do-ray-tracing-cpu-version
 	static float RaySphereIntersect(const Ray &ray, const Sphere &sphere)
 	{
 		glm::vec3 origin = ray.Origin - sphere.Origin;
@@ -85,6 +88,9 @@ namespace Utils {
 		return t0;
 	}
 	
+
+	// The Möller–Trumbore intersection algorithm
+	// Code adapted from https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
 	static float RayTriangleIntersect(const Ray &ray, const Triangle &triangle)
 	{
 		const float EPSILON = 0.0000001;
@@ -211,10 +217,10 @@ glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
 
 	for (int i = 0; i < bounces; i++)
 	{
-		Renderer::HitData hitData = TraceRay(ray);
+		Renderer::HitData hitData = CastRay(ray);
 		hits.push_back(hitData);
 
-		// If we do not have an intersection, reflect the sky
+		// If we have no intersections, we do not bounce the ray so break
 		if (hitData.HitDistance < 0.0f)
 		{	
 			break;
@@ -245,12 +251,13 @@ glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
 		Ray shadowRay;
 		bool inShadow = true;
 
+		// Check if we are in shadow against each light in the scene
 		for (auto const &light : m_ActiveScene->Lights)
 		{
 			shadowRay.Origin = hitData.WorldPosition + hitData.WorldNormal * 0.0001f;
 			shadowRay.Direction = -(light->GetDirection(shadowRay.Origin));
 
-			Renderer::HitData shadowHit = TraceRay(shadowRay);
+			Renderer::HitData shadowHit = CastRay(shadowRay);
 
 			if (shadowHit.HitDistance >= 0.0f)
 			{
@@ -259,15 +266,20 @@ glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
 				continue;
 			}
 
+			// If we are not in the shadow for at least some light
 			inShadow = false;
 			break;
 		}
+
+
 		if (inShadow)
 		{
 			localColors.push_back(0.2f * hitData.Color);
 			continue;
 		}
+
 		glm::vec3 color{ 0.0f };
+
 		for (auto const &light: m_ActiveScene->Lights)
 		{
 			shadowRay.Origin = hitData.WorldPosition + hitData.WorldNormal * 0.0001f;
@@ -294,7 +306,7 @@ glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
 	return glm::vec4(color, 1.0f);
 }
 
-Renderer::HitData Renderer::TraceRay(const Ray &ray)
+Renderer::HitData Renderer::CastRay(const Ray &ray)
 {
 	int closestObject = -1; // If we do not hit a sphere it stays nullptr
 	uint8_t objectType = -1; // Track which type of object we hit

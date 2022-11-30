@@ -14,7 +14,7 @@ class Renderer
 public:
 	struct Settings
 	{
-		bool Parallel = false;
+		bool Parallel = true;
 	};
 
 public:
@@ -45,8 +45,13 @@ private:
 	
 	glm::vec4 PerPixel(uint32_t x, uint32_t y);
 
-	HitData TraceRay(const Ray &ray);
+	// Function that casts a ray out into the world space
+	HitData CastRay(const Ray &ray);
+
+	// Function that returns the closest hit object for a casted ray
 	HitData ClosestHit(const Ray &ray, float hitDistance, int objectIndex, uint8_t ObjectType, uint8_t objectFace);
+
+	// Function that returns information that a casted ray missed (did not intersect) any object
 	HitData Miss(const Ray &ray);
 
 private:
