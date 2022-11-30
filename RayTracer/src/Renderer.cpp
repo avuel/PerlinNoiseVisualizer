@@ -1,8 +1,6 @@
 #include "Renderer.hpp"
 #include "Walnut/Random.h"
 
-#include <iostream>
-
 #include <numeric>
 #include <algorithm>
 #include <execution>
