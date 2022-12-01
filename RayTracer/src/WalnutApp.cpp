@@ -208,12 +208,15 @@ public:
 
 			Sphere &sphere = m_Scene.Spheres[i];
 			ImGui::Text(m_Scene.ObjectNames[sphere.MaterialIndex]);
-			ImGui::DragFloat3("Position", glm::value_ptr(sphere.Origin), 0.1f);
+			ImGui::DragFloat3("Position", glm::value_ptr(sphere.Origin), 0.05f);
 			ImGui::DragFloat("Radius", &sphere.Radius, 0.01f, 0.0f);
 
 			Material &material = m_Scene.Materials[sphere.MaterialIndex];
 			ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo), 0.1f);
-			ImGui::DragFloat("Reflective", &material.Reflectiveness, 0.0f, 0.0f, 1.0f);
+			if (ImGui::DragFloat("Reflective", &material.Reflectiveness, 0.025f))
+			{
+				material.Reflectiveness = std::clamp(material.Reflectiveness, 0.0f, 1.0f);
+			}
 			const int oldshinyness = material.Shinyness;
 			if (ImGui::InputInt("Shinyness", &material.Shinyness))
 			{
@@ -237,14 +240,17 @@ public:
 			Cube &cube = m_Scene.Cubes[i];
 			glm::vec3 oldOrigin = cube.Origin;
 			ImGui::Text(m_Scene.ObjectNames[cube.MaterialIndex]);
-			if (ImGui::DragFloat3("Position", glm::value_ptr(cube.Origin), 0.1f))
+			if (ImGui::DragFloat3("Position", glm::value_ptr(cube.Origin), 0.05f))
 			{
 				cube.Translate(cube.Origin - oldOrigin);
 			}
 
 			Material &material = m_Scene.Materials[cube.MaterialIndex];
 			ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo), 0.1f);
-			ImGui::DragFloat("Reflective", &material.Reflectiveness, 0.0f, 0.0f, 1.0f);
+			if (ImGui::DragFloat("Reflective", &material.Reflectiveness, 0.025f))
+			{
+				material.Reflectiveness = std::clamp(material.Reflectiveness, 0.0f, 1.0f);
+			}
 			const int oldshinyness = material.Shinyness;
 			if (ImGui::InputInt("Shinyness", &material.Shinyness))
 			{
@@ -271,7 +277,8 @@ public:
 			ImGui::Text("Light");
 			ImGui::SameLine();
 			ImGui::Text(std::to_string(++lightcount).c_str());
-			ImGui::DragFloat3(light->GetType(), glm::value_ptr(*light->GetData()), 0.1f);
+			ImGui::DragFloat3(light->GetType(), glm::value_ptr(*light->GetData()), 0.05f);
+			ImGui::ColorEdit3("Color", glm::value_ptr(light->Color), 0.1f);
 
 			ImGui::Separator();
 

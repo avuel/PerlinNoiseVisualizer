@@ -159,7 +159,7 @@ void Renderer::Render(const Scene &scene, const Camera &camera)
 
 	const std::vector<glm::vec3> rayDirections = camera.GetRayDirections();
 	// https://stackoverflow.com/questions/17694579/use-stdfill-to-populate-vector-with-increasing-numbers
-	// Code that creates and fills a vector of size n where the elements are 0,1,2,...,n
+	// Code that creates and fills a vector of size n where the elements are 0,1,2,...,n - 1
 	std::vector<int> pixels(m_FinalImage->GetHeight() * m_FinalImage->GetWidth()); 
 	std::iota (std::begin(pixels), std::end(pixels), 0);
 

@@ -6,6 +6,8 @@
 
 #include "Walnut/Input/Input.h"
 
+// Code obtained from https://github.com/TheCherno
+
 using namespace Walnut;
 
 Camera::Camera(float verticalFOV, float nearClip, float farClip)

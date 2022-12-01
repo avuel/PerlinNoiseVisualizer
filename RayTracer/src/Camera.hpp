@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <vector>
 
+// Code obtained from https://github.com/TheCherno
+
 class Camera
 {
 public:
