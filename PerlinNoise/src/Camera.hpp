@@ -24,6 +24,9 @@ public:
 	const std::vector<glm::vec3>& GetRayDirections() const { return m_RayDirections; }
 
 	float GetRotationSpeed();
+
+	const float &GetSpeed() const { return m_Speed; };
+	void SetSpeed(const float &speed) { m_Speed = speed; }
 private:
 	void RecalculateProjection();
 	void RecalculateView();
@@ -40,6 +43,8 @@ private:
 
 	glm::vec3 m_Position{0.0f, 0.0f, 0.0f};
 	glm::vec3 m_ForwardDirection{0.0f, 0.0f, 0.0f};
+
+	float m_Speed = 25.0f;
 
 	// Cached ray directions
 	std::vector<glm::vec3> m_RayDirections;

@@ -13,14 +13,17 @@ using namespace Walnut;
 Camera::Camera(float verticalFOV, float nearClip, float farClip)
 	: m_VerticalFOV(verticalFOV), m_NearClip(nearClip), m_FarClip(farClip)
 {
-	m_ForwardDirection = glm::vec3(0, 0, -1);
-	m_Position = glm::vec3(0, 0, 7);
+	m_ForwardDirection = glm::vec3(0, 0, 1);
+	m_Position = glm::vec3(0, 0, -7);
+
+	RecalculateView();
+	RecalculateRayDirections();
 }
 
 bool Camera::OnUpdate(float ts)
 {
 	glm::vec2 mousePos = Input::GetMousePosition();
-	glm::vec2 delta = (mousePos - m_LastMousePosition) * 0.002f;
+	glm::vec2 delta = (mousePos - m_LastMousePosition) * 0.003f;
 	m_LastMousePosition = mousePos;
 
 	if (!Input::IsMouseButtonDown(MouseButton::Right))
@@ -36,37 +39,35 @@ bool Camera::OnUpdate(float ts)
 	constexpr glm::vec3 upDirection(0.0f, 1.0f, 0.0f);
 	glm::vec3 rightDirection = glm::cross(m_ForwardDirection, upDirection);
 
-	float speed = 5.0f;
-
 	// Movement
 	if (Input::IsKeyDown(KeyCode::W))
 	{
-		m_Position += m_ForwardDirection * speed * ts;
+		m_Position += m_ForwardDirection * m_Speed * ts;
 		moved = true;
 	}
 	else if (Input::IsKeyDown(KeyCode::S))
 	{
-		m_Position -= m_ForwardDirection * speed * ts;
+		m_Position -= m_ForwardDirection * m_Speed * ts;
 		moved = true;
 	}
 	if (Input::IsKeyDown(KeyCode::A))
 	{
-		m_Position -= rightDirection * speed * ts;
+		m_Position -= rightDirection * m_Speed * ts;
 		moved = true;
 	}
 	else if (Input::IsKeyDown(KeyCode::D))
 	{
-		m_Position += rightDirection * speed * ts;
+		m_Position += rightDirection * m_Speed * ts;
 		moved = true;
 	}
 	if (Input::IsKeyDown(KeyCode::Q))
 	{
-		m_Position -= upDirection * speed * ts;
+		m_Position -= upDirection * m_Speed * ts;
 		moved = true;
 	}
 	else if (Input::IsKeyDown(KeyCode::E))
 	{
-		m_Position += upDirection * speed * ts;
+		m_Position += upDirection * m_Speed * ts;
 		moved = true;
 	}
 

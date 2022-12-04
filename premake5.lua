@@ -1,10 +1,10 @@
 -- premake5.lua
-workspace "RayTracer"
+workspace "PerlinNoise"
    architecture "x64"
    configurations { "Debug", "Release", "Dist" }
-   startproject "RayTracer"
+   startproject "PerlinNoise"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 include "Walnut/WalnutExternal.lua"
 
-include "RayTracer"
+include "PerlinNoise"
