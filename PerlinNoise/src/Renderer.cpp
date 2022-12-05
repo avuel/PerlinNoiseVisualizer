@@ -18,7 +18,7 @@ namespace Utils {
 		return (uint32_t)((a << 24) | (b << 16) | (g << 8) | r);
 	}
 	
-	// The Möller–Trumbore intersection algorithm
+	// The MÃ¶llerâ€“Trumbore intersection algorithm
 	// Code adapted from https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
 	static float RayTriangleIntersect(const Ray &ray, const Triangle &triangle)
 	{
@@ -228,14 +228,14 @@ glm::vec4 Renderer::PerPixel(const uint32_t &pixel)
 		color = glm::vec3(0.5f, 0.65f, 1.0f);
 
 	// Color based on noise value
-	else if (y < 0.4f)
+	else if (y < m_Settings.Water)
 		color = glm::vec3(.1f, 0.25f, 1.0f);
-	else if (y < 0.425f)
+	else if (y < m_Settings.Sand)
 		color = glm::vec3(0.7f, 0.7f, 0.3f);
-	else if (y <= .625 && y > .525)
-		color = glm::vec3(0.2f, 0.2f, 0.2f);
-	else if (y > .625)
+	else if (y > m_Settings.Snow)
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
+	else if (y > m_Settings.Stone)
+		color = glm::vec3(0.2f, 0.2f, 0.2f);
 
 	return glm::vec4(color, 1.0f);
 }
