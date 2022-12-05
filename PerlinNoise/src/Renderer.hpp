@@ -18,6 +18,10 @@ public:
 		bool Parallel = true;
 		bool Noise = false;
 		bool OcTree = true;
+		float Water = 0.4f;
+		float Sand = 0.425f;
+		float Stone = 0.55f;
+		float Snow = 0.625f;
 	};
 
 public:
