@@ -21,7 +21,7 @@ public:
 
 public:
     bool GUI(size_t &width, size_t &height);
-    const std::vector<double> const GetNoise() { return m_PixelData; };
+    const std::vector<double>& const GetNoise() { return m_PixelData; };
 
 private:
     double Noise2D(double x, double y);

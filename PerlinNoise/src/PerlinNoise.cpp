@@ -286,7 +286,7 @@ void PerlinNoiseGenerator::UpdatePixelData()
     {
         for (size_t i = 0; i < wdth; i++)
         {
-            m_PixelData[i + j * wdth] = OctaveNoise2D(i, j);
+            m_PixelData[i + j * wdth] = (OctaveNoise2D(i, j) + 1.0f) / 2.0f;
         }
     }
 }
@@ -297,7 +297,7 @@ void PerlinNoiseGenerator::DrawNoiseHeightMap(ImDrawList *drawlist, const ImVec2
     {
         for (size_t i = 0; i < m_Width; i++)
         {
-            double pixel = 255 * (m_PixelData[i + j * m_Width]*0.5f + 0.5f);
+            double pixel = 255 * m_PixelData[i + j * m_Width];
             drawlist->AddRectFilled(ImVec2(p0.x + i, p0.y + j), ImVec2(p0.x + (i + 1), p0.y + (j + 1)),
                 IM_COL32(pixel, pixel, pixel, 255));
         }

@@ -19,21 +19,7 @@ public:
 	ExampleLayer()
 		: m_Camera(45.0f, 0.1f, 100.0f) 
 	{
-		{
-			float width = 520.0f / 2.0f;
-			float height = 16.0f / 2.0f;
-			float depth = width;
-			glm::vec3 origin = glm::vec3(511.0f / 2.0f, height / 2.0f, 511.0f / 2.0f);
-			m_Scene.BoundingBox = AABB(origin, glm::vec3(width, height, depth));
-		}
-
-		{
-			float size = 0.5f;
-			glm::vec3 origin = glm::vec3(0.0f, 0.0f, 0.0f);
-
-			AABB aabb(origin, glm::vec3(size, size, size));
-			m_Scene.AABBs.push_back(aabb);
-		}
+	
 	}
 
 	virtual void OnUpdate(float ts) override
@@ -47,8 +33,7 @@ public:
 
 		ImGui::Checkbox("Parallel Rendering", &m_Renderer.GetSettings().Parallel);
 		ImGui::Checkbox("Render Noise Map", &m_Renderer.GetSettings().Noise);
-		ImGui::Checkbox("Render Bounding Box", &m_Renderer.GetSettings().BoundingBox);
-		ImGui::Checkbox("Clip to Bounding Box", &m_Renderer.GetSettings().Clip);
+		ImGui::Checkbox("Octree Optimization", &m_Renderer.GetSettings().OcTree);
 
 		float speed = m_Camera.GetSpeed();
 		ImGui::PushItemWidth(120);

@@ -17,8 +17,7 @@ public:
 	{
 		bool Parallel = true;
 		bool Noise = false;
-		bool BoundingBox = false;
-		bool Clip = true;
+		bool OcTree = true;
 	};
 
 public:
@@ -36,7 +35,24 @@ private:
 		float HitDistance;
 		glm::vec3 WorldNormal;
 		glm::vec3 WorldPosition;
-		uint32_t HitPixel;
+		bool Hit = false;
+	};
+
+	struct ChunkHit
+	{
+		OcTree *ocTree;
+		int HitFace = -1;
+		float HitDistance;
+
+		ChunkHit() = default;
+
+		ChunkHit(OcTree* octree, int hitface, float hitdistance) : ocTree(octree), HitFace(hitface), HitDistance(hitdistance) {}
+
+		bool operator< (const ChunkHit &right) { return HitDistance < right.HitDistance; }
+		bool operator<= (const ChunkHit &right) { return HitDistance <= right.HitDistance; }
+		bool operator> (const ChunkHit &right) { return HitDistance > right.HitDistance; }
+		bool operator>= (const ChunkHit &right) { return HitDistance >= right.HitDistance; }
+		bool operator== (const ChunkHit &right) { return HitDistance == right.HitDistance; }
 	};
 	
 	glm::vec4 PerPixel(const uint32_t &pixel);
@@ -45,7 +61,7 @@ private:
 	HitData CastRay(const Ray &ray);
 
 	// Function that returns the closest hit object for a casted ray
-	HitData ClosestHit(const Ray &ray, const float &hitDistance, const glm::vec3 &hitNormal, const size_t &hitPixel);
+	HitData ClosestHit(const Ray &ray, const float &hitDistance);
 
 	// Function that returns information that a casted ray missed (did not intersect) any object
 	HitData Miss(const Ray &ray);
@@ -56,9 +72,10 @@ private:
 	Settings m_Settings;
 
 	std::shared_ptr<Walnut::Image> m_FinalImage;
-	glm::vec3 *m_NormalBuffer = nullptr;
+	//glm::vec3 *m_NormalBuffer = nullptr;
 	uint32_t *m_ColorBuffer = nullptr;
 	size_t m_Width = 0;
 	size_t m_Height = 0;
+	size_t m_NoiseHeight = 32;
 };
 

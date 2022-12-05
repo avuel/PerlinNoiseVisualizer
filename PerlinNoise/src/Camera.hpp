@@ -25,7 +25,7 @@ public:
 
 	float GetRotationSpeed();
 
-	const float &GetSpeed() const { return m_Speed; };
+	const float &GetSpeed() const { return m_Speed; }
 	void SetSpeed(const float &speed) { m_Speed = speed; }
 private:
 	void RecalculateProjection();
