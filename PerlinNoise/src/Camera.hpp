@@ -44,7 +44,7 @@ private:
 	glm::vec3 m_Position{0.0f, 0.0f, 0.0f};
 	glm::vec3 m_ForwardDirection{0.0f, 0.0f, 0.0f};
 
-	float m_Speed = 25.0f;
+	float m_Speed = 100.0f;
 
 	// Cached ray directions
 	std::vector<glm::vec3> m_RayDirections;

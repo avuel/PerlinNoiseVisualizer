@@ -33,53 +33,57 @@ public:
 
 		ImGui::Checkbox("Parallel Rendering", &m_Renderer.GetSettings().Parallel);
 		ImGui::Checkbox("Render Noise Map", &m_Renderer.GetSettings().Noise);
-		ImGui::Checkbox("Octree Optimization", &m_Renderer.GetSettings().OcTree);
+		ImGui::Checkbox("Octree Optimization (Recommended)", &m_Renderer.GetSettings().OcTree);
+		if (ImGui::Checkbox("Color Height Map", &m_Scene.GetNoiseSettings()->Color));
 
 		float speed = m_Camera.GetSpeed();
 		ImGui::PushItemWidth(120);
 		if (ImGui::InputFloat("Camera Speed", &speed, 0.0f, 0.0f, "%.3f"))
 		{
-			speed = std::clamp(speed, std::numeric_limits<float>::min(), 100.0f);
+			speed = std::clamp(speed, std::numeric_limits<float>::min(), 250.0f);
 			m_Camera.SetSpeed(speed);
 		}
 		ImGui::PopItemWidth();
 		
 		ImGui::PushItemWidth(150);
-		int oldheight = m_Scene.NoiseHeightScale;
-		if (ImGui::InputInt("Nose Map Height Scale", &m_Scene.NoiseHeightScale, 1, 1))
+		int oldHeight = m_Scene.GetNoiseHeight();
+		if (ImGui::InputInt("Height Scale", &m_Scene.GetNoiseSettings()->Height, 1, 1))
 		{
-			if (oldheight < m_Scene.NoiseHeightScale)
-				m_Scene.NoiseHeightScale = oldheight * 2;
+			int newHeight = m_Scene.GetNoiseSettings()->Height;
+			if (oldHeight < newHeight)
+				newHeight = oldHeight * 2;
 			else
-				m_Scene.NoiseHeightScale = oldheight / 2;
+				newHeight = oldHeight / 2;
 
 			// Clamp height values and update cell size if necessary
-			m_Scene.NoiseHeightScale = std::clamp(m_Scene.NoiseHeightScale, 1, 256);
+			newHeight = std::clamp(newHeight, 1, 256);
+			m_Scene.SetNoiseHeight(newHeight);
 		}
 		ImGui::PopItemWidth();
 
 		ImGui::PushItemWidth(120);
-		if (ImGui::InputFloat("Water Height", &m_Renderer.GetSettings().Water, 0.0f, 0.0f, "%.3f"))
+
+		if (ImGui::InputFloat("Water Height", &m_Scene.GetNoiseSettings()->Water, 0.0f, 0.0f, "%.3f"))
 		{
-			speed = std::clamp(speed, std::numeric_limits<float>::min(), 100.0f);
-			m_Camera.SetSpeed(speed);
+			float newWater = std::clamp(m_Scene.GetNoiseSettings()->Water, 0.0f, 1.0f);
+			m_Scene.SetNoiseWater(newWater);
 		}
-		if (ImGui::InputFloat("Sand Height", &m_Renderer.GetSettings().Sand, 0.0f, 0.0f, "%.3f"))
+		if (ImGui::InputFloat("Sand Height", &m_Scene.GetNoiseSettings()->Sand, 0.0f, 0.0f, "%.3f"))
 		{
-			speed = std::clamp(speed, std::numeric_limits<float>::min(), 100.0f);
-			m_Camera.SetSpeed(speed);
+			float newSand = std::clamp(m_Scene.GetNoiseSettings()->Sand, 0.0f, 1.0f);
+			m_Scene.SetNoiseSand(newSand);
 		}
 
-		if (ImGui::InputFloat("Stone Height", &m_Renderer.GetSettings().Stone, 0.0f, 0.0f, "%.3f"))
+		if (ImGui::InputFloat("Stone Height", &m_Scene.GetNoiseSettings()->Stone, 0.0f, 0.0f, "%.3f"))
 		{
-			speed = std::clamp(speed, std::numeric_limits<float>::min(), 100.0f);
-			m_Camera.SetSpeed(speed);
+			float newStone = std::clamp(m_Scene.GetNoiseSettings()->Stone, 0.0f, 1.0f);
+			m_Scene.SetNoiseStone(newStone);
 		}
 
-		if (ImGui::InputFloat("Snow Height", &m_Renderer.GetSettings().Snow, 0.0f, 0.0f, "%.3f"))
+		if (ImGui::InputFloat("Snow Height", &m_Scene.GetNoiseSettings()->Snow, 0.0f, 0.0f, "%.3f"))
 		{
-			speed = std::clamp(speed, std::numeric_limits<float>::min(), 100.0f);
-			m_Camera.SetSpeed(speed);
+			float newSnow = std::clamp(m_Scene.GetNoiseSettings()->Snow, 0.0f, 1.0f);
+			m_Scene.SetNoiseSnow(newSnow);
 		}
 		ImGui::PopItemWidth();
 

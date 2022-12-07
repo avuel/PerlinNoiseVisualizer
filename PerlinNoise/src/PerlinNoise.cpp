@@ -2,8 +2,6 @@
 
 #include "PerlinNoise.hpp"
 
-#include <iostream>
-
 namespace Utils
 {
     // From Ken Perlin's 2002 Paper http://mrl.nyu.edu/~perlin/paper445.pdf
@@ -12,6 +10,7 @@ namespace Utils
         return t * t * t * (t * (t * 6 - 15) + 10); // 6*t^5 - 15*t^4 + 10*t^3
     }
 
+    // Simple linear interpolation function
     double lerp(const double &t, const double &a, const double &b)
     {
         return a + t*(b - a);
@@ -135,6 +134,7 @@ bool PerlinNoiseGenerator::GUI(size_t &width, size_t &height)
         // Add a blank space
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
 
+        // If we click the generate button, update our member variables, influence vectors, and pixel data
         if (ImGui::Button("Generate Noise"))
         {
             updated = true;
@@ -160,6 +160,7 @@ bool PerlinNoiseGenerator::GUI(size_t &width, size_t &height)
     ImGui::End();
 
 
+    // Canvas to draw the Perlin Noise Height map
     ImGui::Begin("Perlin Noise Height Map(s)");
     {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));      // Disable padding
@@ -182,6 +183,7 @@ bool PerlinNoiseGenerator::GUI(size_t &width, size_t &height)
             // Draw grid + all lines in the canvas
             draw_list->PushClipRect(canvas_p0, canvas_p1, true);
 
+            // Draw the height map
             DrawNoiseHeightMap(draw_list, canvas_p0);
             draw_list->PopClipRect();
         }
@@ -191,14 +193,12 @@ bool PerlinNoiseGenerator::GUI(size_t &width, size_t &height)
     }
     ImGui::End();
 
-
-    // End the entire dock window
-    //ImGui::End();
-
-    //ImGui::ShowDemoWindow();
+    // If we updated out variables, return it
     return updated;
 }
 
+// Adapted code from Ken Perlin's java implemenation of his Improved Perlin Noise Algorith
+// Found at https://cs.nyu.edu/~perlin/noise/
 double PerlinNoiseGenerator::Noise2D(double x, double y)
 {
     uint16_t maxLength = std::max(m_Width, m_Height) - 1;
@@ -211,14 +211,15 @@ double PerlinNoiseGenerator::Noise2D(double x, double y)
     double u = Utils::spline(x); // COMPUTE SPLINE CURVES
     double v = Utils::spline(y); // FOR EACH OF X,Y.
 
-    return Utils::lerp(v, Utils::lerp(u, glm::dot(m_InfluenceVectors[X + Y * m_Width], glm::vec2(x,y)),                  // AND ADD
-        glm::dot(m_InfluenceVectors[(X + 1) + Y * m_Width], glm::vec2(x-1.0,y))),       // BLENDED
+    return Utils::lerp(v, Utils::lerp(u, glm::dot(m_InfluenceVectors[X + Y * m_Width], glm::vec2(x,y)),// AND ADD
+        glm::dot(m_InfluenceVectors[(X + 1) + Y * m_Width], glm::vec2(x-1.0,y))),                      // BLENDED
         Utils::lerp(u, glm::dot(m_InfluenceVectors[X + (Y + 1) * m_Width], glm::vec2(x,y-1.0)),        // RESULTS
-            glm::dot(m_InfluenceVectors[(X + 1) + (Y + 1) * m_Width], glm::vec2(x-1.0,y-1.0)))); // FOR 4 CORNERS
+            glm::dot(m_InfluenceVectors[(X + 1) + (Y + 1) * m_Width], glm::vec2(x-1.0,y-1.0))));       // FOR 4 CORNERS
 }
 
 double PerlinNoiseGenerator::OctaveNoise2D(const int &x, const int &y)
 {
+    // Loop over each level and generate the noise with a doubled frequency
     double X = (double)x / (double)m_CellSize;
     double Y = (double)y / (double)m_CellSize;
 
@@ -228,6 +229,7 @@ double PerlinNoiseGenerator::OctaveNoise2D(const int &x, const int &y)
 
     for (int i = 0; i < m_Levels; i++)
     {
+        // Add the scaled down noise to our current noise
         result += Noise2D(X, Y) * amplifier;
         X *= 2.0;
         Y *= 2.0;
@@ -236,15 +238,17 @@ double PerlinNoiseGenerator::OctaveNoise2D(const int &x, const int &y)
         amplifier *= m_Attenuation;
     }
 
+    // Divide the noise by the total amplification we had for all levels
     return result/amplified;
 }
 
 void PerlinNoiseGenerator::UpdateInfluenceVectors()
 {
+    // Resize and repopulate the influence vectors
     size_t wdth = (size_t)m_Width * (size_t)m_Levels;
     size_t hght = (size_t)m_Height * (size_t)m_Levels;
-
     m_InfluenceVectors.resize(wdth * hght);
+    float trash = rand(); // If this is not here, the first influence vector is always 0 so call rand() once
 
     for (size_t j = 0; j < hght; j++)
     {
@@ -277,9 +281,9 @@ void PerlinNoiseGenerator::DrawInfluenceVectors(ImDrawList *drawlist, const ImVe
 
 void PerlinNoiseGenerator::UpdatePixelData()
 {
+    // Repopulate our Pixel data
     size_t wdth = (size_t)m_Width;
     size_t hght = (size_t)m_Height;
-
     m_PixelData.resize(wdth * hght);
 
     for (size_t j = 0; j < hght; j++)
@@ -293,13 +297,34 @@ void PerlinNoiseGenerator::UpdatePixelData()
 
 void PerlinNoiseGenerator::DrawNoiseHeightMap(ImDrawList *drawlist, const ImVec2 &p0)
 {
+    // Draw the noise map from the pixel data
     for (size_t j = 0; j < m_Height; j++)
     {
         for (size_t i = 0; i < m_Width; i++)
         {
-            double pixel = 255 * m_PixelData[i + j * m_Width];
-            drawlist->AddRectFilled(ImVec2(p0.x + i, p0.y + j), ImVec2(p0.x + (i + 1), p0.y + (j + 1)),
-                IM_COL32(pixel, pixel, pixel, 255));
+            double pixel = m_PixelData[i + j * m_Width];
+            uint32_t color = IM_COL32(255.0 * pixel, 255.0 * pixel, 255.0 * pixel, 255.0);
+
+            if (!m_NoiseSettings.Color)
+            {
+                drawlist->AddRectFilled(ImVec2(p0.x + i, p0.y + j), ImVec2(p0.x + (i + 1), p0.y + (j + 1)), color);
+                continue;
+            }
+                
+            color = IM_COL32(136, 196, 128, 255);
+            pixel = double((int)(pixel * (double)m_NoiseSettings.Height)) / (double)(m_NoiseSettings.Height);
+
+            // Color based on noise value
+            if (pixel < m_NoiseSettings.Water)
+                color = IM_COL32(32, 64, 196, 255);
+            else if (pixel < m_NoiseSettings.Sand)
+                color = IM_COL32(180, 180, 75, 255);
+            else if (pixel > m_NoiseSettings.Snow)
+                color = IM_COL32(255, 255, 255, 255);
+            else if (pixel > m_NoiseSettings.Stone)
+                color = IM_COL32(51, 51, 51, 255);
+
+            drawlist->AddRectFilled(ImVec2(p0.x + i, p0.y + j), ImVec2(p0.x + (i + 1), p0.y + (j + 1)), color);
         }
     }
 }

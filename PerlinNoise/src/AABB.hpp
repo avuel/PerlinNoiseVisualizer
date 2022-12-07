@@ -1,11 +1,14 @@
 #pragma once
 
 #include "Triangle.hpp"
+#include "Quad.hpp"
 
 struct AABB
 {
 	Triangle Triangles[12] = {};
-	glm::vec3 Normals[6] = {};
+	Quad Faces[6];
+	glm::vec3 Normals[6] = { {0,0,-1}, {1,0,0}, {0,0,1}, {-1,0,0}, {0,1,0}, {0,-1,0} };
+	glm::vec3 Vertices[8] = {};
 	glm::vec3 Origin{ 0.0f };
 	glm::vec3 Dims{ 0.0f };
 
@@ -15,73 +18,85 @@ struct AABB
 	{
 		Origin = origin;
 		Dims = dims;
+		Vertices[0] = glm::vec3(origin.x - dims.x, origin.y - dims.y, origin.z - dims.z); // (-, -, -)
+		Vertices[1] = glm::vec3(origin.x + dims.x, origin.y - dims.y, origin.z - dims.z); // (+, -, -)
+		Vertices[2] = glm::vec3(origin.x - dims.x, origin.y + dims.y, origin.z - dims.z); // (-, +, -)
+		Vertices[3] = glm::vec3(origin.x + dims.x, origin.y + dims.y, origin.z - dims.z); // (+, +, -)
+		Vertices[4] = glm::vec3(origin.x + dims.x, origin.y - dims.y, origin.z + dims.z); // (+, -, +)
+		Vertices[5] = glm::vec3(origin.x + dims.x, origin.y + dims.y, origin.z + dims.z); // (+, +, +)
+		Vertices[6] = glm::vec3(origin.x - dims.x, origin.y - dims.y, origin.z + dims.z); // (-, -, +)
+		Vertices[7] = glm::vec3(origin.x - dims.x, origin.y + dims.y, origin.z + dims.z); // (-, +, +)
 
-		// Back Face
+		glm::vec2 xBounds = glm::vec2(Vertices[0].x, Vertices[5].x);
+		glm::vec2 yBounds = glm::vec2(Vertices[0].y, Vertices[5].y);
+		glm::vec2 zBounds = glm::vec2(Vertices[0].z, Vertices[5].z);
+
+		Faces[0] = Quad({ Vertices[0], Vertices[1], Vertices[3], Vertices[2] }, { xBounds, yBounds, zBounds }, Normals[0]); // Front Face
+		Faces[1] = Quad({ Vertices[1], Vertices[4], Vertices[5], Vertices[3] }, { xBounds, yBounds, zBounds }, Normals[1]); // Right Face
+		Faces[2] = Quad({ Vertices[4], Vertices[6], Vertices[7], Vertices[5] }, { xBounds, yBounds, zBounds }, Normals[2]); // Back Face
+		Faces[3] = Quad({ Vertices[6], Vertices[0], Vertices[2], Vertices[7] }, { xBounds, yBounds, zBounds }, Normals[3]); // Left Face
+		Faces[4] = Quad({ Vertices[2], Vertices[3], Vertices[5], Vertices[7] }, { xBounds, yBounds, zBounds }, Normals[4]); // Up Face
+		Faces[5] = Quad({ Vertices[4], Vertices[1], Vertices[0], Vertices[6] }, { xBounds, yBounds, zBounds }, Normals[5]); // Down Face
+
+		// Front Face
 		Triangle triangle0;
-		triangle0.V0 = { origin.x - Dims.x, origin.y - Dims.y, origin.z - Dims.z }; // (-, -, -)
-		triangle0.V1 = { origin.x + Dims.x, origin.y - Dims.y, origin.z - Dims.z }; // (+, -, -)
-		triangle0.V2 = { origin.x - Dims.x, origin.y + Dims.y, origin.z - Dims.z }; // (-, +, -)
+		triangle0.V0 = Vertices[0]; // (-, -, -)
+		triangle0.V1 = Vertices[1]; // (+, -, -)
+		triangle0.V2 = Vertices[2]; // (-, +, -)
 		Triangle triangle1;
-		triangle1.V0 = { origin.x + Dims.x, origin.y - Dims.y, origin.z - Dims.z }; // (+, -, -)
-		triangle1.V1 = { origin.x + Dims.x, origin.y + Dims.y, origin.z - Dims.z }; // (+, +, -)
-		triangle1.V2 = { origin.x - Dims.x, origin.y + Dims.y, origin.z - Dims.z }; // (-, +, -)
+		triangle1.V0 = Vertices[1]; // (+, -, -)
+		triangle1.V1 = Vertices[3]; // (+, +, -)
+		triangle1.V2 = Vertices[2]; // (-, +, -)
 
 		// Right Face
 		Triangle triangle2;
-		triangle2.V0 = { origin.x + Dims.x, origin.y - Dims.y, origin.z - Dims.z }; // (+, -, -)
-		triangle2.V1 = { origin.x + Dims.x, origin.y - Dims.y, origin.z + Dims.z }; // (+, -, +)
-		triangle2.V2 = { origin.x + Dims.x, origin.y + Dims.y, origin.z - Dims.z }; // (+, +, -)
+		triangle2.V0 = Vertices[1]; // (+, -, -)
+		triangle2.V1 = Vertices[4]; // (+, -, +)
+		triangle2.V2 = Vertices[3]; // (+, +, -)
 		Triangle triangle3;
-		triangle3.V0 = { origin.x + Dims.x, origin.y - Dims.y, origin.z + Dims.z }; // (+, -, +)
-		triangle3.V1 = { origin.x + Dims.x, origin.y + Dims.y, origin.z + Dims.z }; // (+, +, +)
-		triangle3.V2 = { origin.x + Dims.x, origin.y + Dims.y, origin.z - Dims.z }; // (+, +, -)
+		triangle3.V0 = Vertices[4]; // (+, -, +)
+		triangle3.V1 = Vertices[5]; // (+, +, +)
+		triangle3.V2 = Vertices[3]; // (+, +, -)
 
-		// Front Face
+		// Back Face
 		Triangle triangle4;
-		triangle4.V0 = { origin.x + Dims.x, origin.y - Dims.y, origin.z + Dims.z }; // (+, -, +)
-		triangle4.V1 = { origin.x - Dims.x, origin.y - Dims.y, origin.z + Dims.z }; // (-, -, +)
-		triangle4.V2 = { origin.x + Dims.x, origin.y + Dims.y, origin.z + Dims.z }; // (+, +, +)
+		triangle4.V0 = Vertices[4]; // (+, -, +)
+		triangle4.V1 = Vertices[6]; // (-, -, +)
+		triangle4.V2 = Vertices[5]; // (+, +, +)
 		Triangle triangle5;
-		triangle5.V0 = { origin.x - Dims.x, origin.y - Dims.y, origin.z + Dims.z }; // (-, -, +)
-		triangle5.V1 = { origin.x - Dims.x, origin.y + Dims.y, origin.z + Dims.z }; // (-, +, +)
-		triangle5.V2 = { origin.x + Dims.x, origin.y + Dims.y, origin.z + Dims.z }; // (+, +, +)
+		triangle5.V0 = Vertices[6]; // (-, -, +)
+		triangle5.V1 = Vertices[7]; // (-, +, +)
+		triangle5.V2 = Vertices[5]; // (+, +, +)
 
 		// Left Face
 		Triangle triangle6;
-		triangle6.V0 = { origin.x - Dims.x, origin.y - Dims.y, origin.z + Dims.z }; // (-, -, +)
-		triangle6.V1 = { origin.x - Dims.x, origin.y - Dims.y, origin.z - Dims.z }; // (-, -, -)
-		triangle6.V2 = { origin.x - Dims.x, origin.y + Dims.y, origin.z + Dims.z }; // (-, +, +)
+		triangle6.V0 = Vertices[6]; // (-, -, +)
+		triangle6.V1 = Vertices[0]; // (-, -, -)
+		triangle6.V2 = Vertices[7]; // (-, +, +)
 		Triangle triangle7;
-		triangle7.V0 = { origin.x - Dims.x, origin.y - Dims.y, origin.z - Dims.z }; // (-, -, -)
-		triangle7.V1 = { origin.x - Dims.x, origin.y + Dims.y, origin.z - Dims.z }; // (-, +, -)
-		triangle7.V2 = { origin.x - Dims.x, origin.y + Dims.y, origin.z + Dims.z }; // (-, +, +)
+		triangle7.V0 = Vertices[0]; // (-, -, -)
+		triangle7.V1 = Vertices[2]; // (-, +, -)
+		triangle7.V2 = Vertices[7]; // (-, +, +)
 
 		// Top Face
 		Triangle triangle8;
-		triangle8.V0 = { origin.x - Dims.x, origin.y + Dims.y, origin.z - Dims.z }; // (-, +, -)
-		triangle8.V1 = { origin.x + Dims.x, origin.y + Dims.y, origin.z - Dims.z }; // (+, +, -)
-		triangle8.V2 = { origin.x - Dims.x, origin.y + Dims.y, origin.z + Dims.z }; // (-, +, +)
+		triangle8.V0 = Vertices[2]; // (-, +, -)
+		triangle8.V1 = Vertices[3]; // (+, +, -)
+		triangle8.V2 = Vertices[7]; // (-, +, +)
 		Triangle triangle9;
-		triangle9.V0 = { origin.x + Dims.x, origin.y + Dims.y, origin.z - Dims.z }; // (+, +, -)
-		triangle9.V1 = { origin.x + Dims.x, origin.y + Dims.y, origin.z + Dims.z }; // (+, +, +)
-		triangle9.V2 = { origin.x - Dims.x, origin.y + Dims.y, origin.z + Dims.z }; // (-, +, +)
+		triangle9.V0 = Vertices[3]; // (+, +, -)
+		triangle9.V1 = Vertices[5]; // (+, +, +)
+		triangle9.V2 = Vertices[7]; // (-, +, +)
 
 		// Bottom Face
 		Triangle triangle10;
-		triangle10.V0 = { origin.x - Dims.x, origin.y - Dims.y, origin.z - Dims.z }; // (-, -, -)
-		triangle10.V1 = { origin.x - Dims.x, origin.y - Dims.y, origin.z + Dims.z }; // (-, -, +)
-		triangle10.V2 = { origin.x + Dims.x, origin.y - Dims.y, origin.z - Dims.z }; // (+, -, -)
+		triangle10.V0 = Vertices[0]; // (-, -, -)
+		triangle10.V1 = Vertices[6]; // (-, -, +)
+		triangle10.V2 = Vertices[1]; // (+, -, -)
 		Triangle triangle11;
-		triangle11.V0 = { origin.x - Dims.x, origin.y - Dims.y, origin.z + Dims.z }; // (-, -, +)
-		triangle11.V1 = { origin.x + Dims.x, origin.y - Dims.y, origin.z + Dims.z }; // (+, -, +)
-		triangle11.V2 = { origin.x + Dims.x, origin.y - Dims.y, origin.z - Dims.z }; // (+, -, -)
-
-		glm::vec3 normal0 = glm::vec3(0, 0, -1);
-		glm::vec3 normal1 = glm::vec3(1, 0, 0);
-		glm::vec3 normal2 = glm::vec3(0, 0, 1);
-		glm::vec3 normal3 = glm::vec3(-1, 0, 0);
-		glm::vec3 normal4 = glm::vec3(0, 1, 0);
-		glm::vec3 normal5 = glm::vec3(0, -1, 0);
+		triangle11.V0 = Vertices[6]; // (-, -, +)
+		triangle11.V1 = Vertices[4]; // (+, -, +)
+		triangle11.V2 = Vertices[1]; // (+, -, -)
 
 		Triangles[0] = triangle0;
 		Triangles[1] = triangle1;
@@ -95,13 +110,6 @@ struct AABB
 		Triangles[9] = triangle9;
 		Triangles[10] = triangle10;
 		Triangles[11] = triangle11;
-
-		Normals[0] = normal0;
-		Normals[1] = normal1;
-		Normals[2] = normal2;
-		Normals[3] = normal3;
-		Normals[4] = normal4;
-		Normals[5] = normal5;
 	}
 
 	void Translate(const glm::vec3 &translation)
@@ -114,14 +122,16 @@ struct AABB
 		}
 	}
 
-	bool Contains(const glm::vec3 &point)
+	bool ContainsPoint(const glm::vec3 &point) const
 	{
-		return ((point.x <= (Origin.x + Dims.x)) &&
-			    (point.x > (Origin.x - Dims.x)) &&
-			    (point.y <= (Origin.y + Dims.y)) &&
-			    (point.y > (Origin.y - Dims.y)) &&
-			    (point.z <= (Origin.z + Dims.z)) &&
-			    (point.z > (Origin.z - Dims.z)));
+		return ((point.x <= (Origin.x + Dims.x)) && (point.x > (Origin.x - Dims.x)) &&
+			    (point.y <= (Origin.y + Dims.y)) && (point.y > (Origin.y - Dims.y)) &&
+			    (point.z <= (Origin.z + Dims.z)) && (point.z > (Origin.z - Dims.z)));
+	}
+
+	std::vector<glm::vec3> GetBoundaries() const
+	{
+		return { Vertices[0], Vertices[5] };
 	}
 
 	void operator= (const AABB &right)
@@ -133,10 +143,15 @@ struct AABB
 		{
 			Triangles[i] = right.Triangles[i];
 		}
-		
+
 		for (int i = 0; i < 6; i++)
 		{
-			Normals[i] = right.Normals[i];
+			Faces[i] = right.Faces[i];
+		}
+
+		for (int i = 0; i < 8; i++)
+		{
+			Vertices[i] = right.Vertices[i];
 		}
 	}
 };

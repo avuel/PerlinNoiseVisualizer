@@ -7,6 +7,17 @@
 #include <vector>
 #include <random>
 
+
+struct NoiseSettings
+{
+    bool  Color  = false;
+    int   Height = 32;
+    float Water  = 0.4f;
+    float Sand   = 0.425f;
+    float Stone  = 0.55f;
+    float Snow   = 0.625f;
+};
+
 class PerlinNoiseGenerator
 {
 public:
@@ -21,7 +32,19 @@ public:
 
 public:
     bool GUI(size_t &width, size_t &height);
-    const std::vector<double>& const GetNoise() { return m_PixelData; };
+    const std::vector<double>& const GetNoise() { return m_PixelData; }
+    NoiseSettings* GetNoiseSettings() { return &m_NoiseSettings; }
+    
+
+public:
+    void SetHeight(const int   &height) { m_NoiseSettings.Height = height; }
+    void SetWater (const float &water ) { m_NoiseSettings.Water  = water;  }
+    void SetSand  (const float &sand  ) { m_NoiseSettings.Sand   = sand;   }
+    void SetStone (const float &stone ) { m_NoiseSettings.Stone  = stone;  }
+    void SetSnow  (const float &snow  ) { m_NoiseSettings.Snow   = snow;   } 
+
+public:
+    const int GetNoiseHeight() const { return m_NoiseSettings.Height; }
 
 private:
     double Noise2D(double x, double y);
@@ -36,6 +59,7 @@ private:
     double m_Attenuation = 1.0f;
     std::vector<glm::vec2> m_InfluenceVectors;
     std::vector<double> m_PixelData;
+    NoiseSettings m_NoiseSettings;
 
 private:
     void UpdateInfluenceVectors();

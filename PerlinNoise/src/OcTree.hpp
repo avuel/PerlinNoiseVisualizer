@@ -11,13 +11,13 @@ public:
 	OcTree() = default;
 	~OcTree()
 	{
+		// No memory leaks please
 		for (int i = 0; i < m_Children.size(); i++)
 		{
 			delete m_Children[i];
 		}
 	}
 	
-
 	OcTree(const AABB &oct, const uint32_t size) 
 		: m_Oct(oct), m_Size(size) 
 	{
@@ -36,11 +36,11 @@ public:
 	}
 	const std::vector<OcTree*>& GetChildren() const { return m_Children; }
 	const std::vector<glm::vec3>& GetPoints() const { return m_Points; }
+	const int GetPointCount() const { return m_Points.size(); };
 
-	int GetPointCount();
 	int GetOctCount();
 	void GetAllPoints(std::vector<glm::vec3> &points);
-
+	void GetAllChildren(std::vector<OcTree*> &children);
 
 
 private:
