@@ -87,6 +87,31 @@ public:
 		}
 		ImGui::PopItemWidth();
 
+		ImGui::PushItemWidth(120);
+		if (ImGui::InputFloat("Water Height", &m_Renderer.GetSettings().Water, 0.0f, 0.0f, "%.3f"))
+		{
+			speed = std::clamp(speed, std::numeric_limits<float>::min(), 100.0f);
+			m_Camera.SetSpeed(speed);
+		}
+		if (ImGui::InputFloat("Sand Height", &m_Renderer.GetSettings().Sand, 0.0f, 0.0f, "%.3f"))
+		{
+			speed = std::clamp(speed, std::numeric_limits<float>::min(), 100.0f);
+			m_Camera.SetSpeed(speed);
+		}
+
+		if (ImGui::InputFloat("Stone Height", &m_Renderer.GetSettings().Stone, 0.0f, 0.0f, "%.3f"))
+		{
+			speed = std::clamp(speed, std::numeric_limits<float>::min(), 100.0f);
+			m_Camera.SetSpeed(speed);
+		}
+
+		if (ImGui::InputFloat("Snow Height", &m_Renderer.GetSettings().Snow, 0.0f, 0.0f, "%.3f"))
+		{
+			speed = std::clamp(speed, std::numeric_limits<float>::min(), 100.0f);
+			m_Camera.SetSpeed(speed);
+		}
+		ImGui::PopItemWidth();
+
 		ImGui::End();
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));

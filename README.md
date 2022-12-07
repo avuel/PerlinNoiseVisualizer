@@ -20,4 +20,8 @@ Officially supports Windows 10/11 and Visual Studio 2022, with more platforms co
 
 ![Noise2](https://user-images.githubusercontent.com/63319229/205561961-013ca58f-b0da-4fa2-aea8-a8db8be13164.png)
 
+<<<<<<< HEAD
 ![Noise3](https://user-images.githubusercontent.com/63319229/205561969-c854b2cf-7f93-4b16-aac3-3c46c934bc48.png)
+=======
+![Noise3](https://user-images.githubusercontent.com/63319229/205561969-c854b2cf-7f93-4b16-aac3-3c46c934bc48.png)
+>>>>>>> f0d31e5a644e8ea13edc4166277dd3d263b1b219
