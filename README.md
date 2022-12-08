@@ -13,6 +13,8 @@ Officially supports Windows 10/11 and Visual Studio 2022, with more platforms co
 - Right-click to pan the camera
 - When holding right click, press WASD to move the camera's position
 
+# Video setting up and demonstrating the project
+https://youtu.be/ENtvcVyIirg
 
 ## Samples from the program
 ![flythrough1](https://user-images.githubusercontent.com/63319229/206326253-0de43d9e-4142-4f27-8b8f-08f127815b82.gif) ![colormap](https://user-images.githubusercontent.com/63319229/206326263-d4ef3369-3ed1-4d66-9d9b-cb1a2cb369b5.gif)
