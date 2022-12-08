@@ -203,7 +203,7 @@ glm::vec4 Renderer::PerPixel(const uint32_t &pixel)
 	else if (y > m_NoiseSettings.Snow)
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 	else if (y > m_NoiseSettings.Stone)
-
+		color = glm::vec3(0.2f, 0.2f, 0.2f);
 
 	return glm::vec4(color, 1.0f);
 }
